@@ -7,7 +7,7 @@ __author__ = 'Peter Hu'
 数据库操作模型
 '''
 
-import time, uuid, logging, functools
+import time, uuid, logging, functools, threading
 
 class Dict(dict):
     """
