@@ -16,7 +16,7 @@ class Dict(dict):
     """
     def __init__(self, names=(),values=(), **kw):
         super(Dict, self).__init__(**kw)
-        for k, v in zip(names, values)
+        for k, v in zip(names, values):
             self[k] = v
             
     def __getattr__(self, key):
@@ -48,7 +48,7 @@ def _profiling(start, sql=''):
 class DBError(Exception):
     pass
     
-class MutiColumnError(DBError):
+class MultiColumnsError(DBError):
     pass
     
 class _LasyConnection(object):
@@ -60,7 +60,7 @@ class _LasyConnection(object):
         self.connection = None
     
     def cursor(self):
-        if self.connection = None:
+        if self.connection is None:
             connection = engine.connect()
             logging.info('open connection <%s>...' % hex(id(connection)))
             self.connection = connection
@@ -99,7 +99,7 @@ class _DbCtx(threading.local):
     
     def cleanup(self):
         self.connection.cleanup()
-        slef.connection = None
+        self.connection = None
     
     def cursor(self):
         return self.connection.cursor()
@@ -120,7 +120,7 @@ class _Engine(object):
     def connect(self):
         return self._connect()
         
-def create_engine(user, password, database, host='127.0.0.1',port='3306', **kw)
+def create_engine(user, password, database, host='127.0.0.1',port='3306', **kw):
     """
     db模型的核心函数，用于连接数据库, 生成全局对象engine，
     engine对象持有数据库连接
@@ -130,17 +130,17 @@ def create_engine(user, password, database, host='127.0.0.1',port='3306', **kw)
     if engine is not None:
         raise DBError('Engine is already initialized.')
     params = dict(user=user, password=password, database=database, host=host, port=port)
-    defaults = dict(use_unicode=True, charset='utf-8', collation='utf8_general_ci', autocommit=False)
+    defaults = dict(use_unicode=True, charset='utf8', collation='utf8_general_ci', autocommit=False)
     for k, v in defaults.iteritems():
         params[k] = kw.pop(k, v)
     params.update(kw)
     params['buffered'] = True
-    engine = _Engine(lambda: mysql.connector.connect(**params)
+    engine = _Engine(lambda: mysql.connector.connect(**params))
     #测试连接
-    logging.info('Init mysql engine <%s> ok.' %hex(id(engine)))
+    logging.info('Init mysql engine <%s> ok.' % hex(id(engine)))
 
 class _ConnectionCtx(object):
-     """
+    '''
     因为_DbCtx实现了连接的 获取和释放，但是并没有实现连接
     的自动获取和释放，_ConnectionCtx在 _DbCtx基础上实现了该功能，
     因此可以对 _ConnectionCtx 使用with 语法，比如：
@@ -148,7 +148,7 @@ class _ConnectionCtx(object):
         pass
         with connection():
             pass
-    """
+    '''
     def __enter__(self):
         global _db_ctx
         self.should_cleanup = False
@@ -156,12 +156,12 @@ class _ConnectionCtx(object):
             _db_ctx.init()
             self.should_cleanup = True
         return self
-        
+
     def __exit__(self, exctype, excvalue, traceback):
         global _db_ctx
         if self.should_cleanup:
             _db_ctx.cleanup()
-            
+
 def connection():
     """
     db模块核心函数，用于获取一个数据库连接
@@ -358,7 +358,7 @@ def select_int(sql, *args):
     MultiColumnsError: Expect only one column.
     """
     d = _select(sql, True, *args)
-    if len(d) != 1：
+    if len(d) != 1:
         raise MultiColumnsError('Expect only one column.')
     return d.values()[0]
 
@@ -451,7 +451,7 @@ def update(sql, *args):
 
 if __name__=='__main__':
     logging.basicConfig(level=logging.DEBUG)
-    create_engine('www-data', 'www-data', 'test')
+    create_engine('root', 'password', 'test')
     update('drop table if exists user')
     update('create table user (id int primary key, name text, email text, passwd text, last_modified real)')
     import doctest
