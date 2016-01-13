@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-__author__ = 'Michael Liao'
+__author__ = 'Peter Hu'
 
 '''
 A WSGI application entry.
@@ -16,32 +16,32 @@ from config import configs
 def datetime_filter(t):
     delta = int(time.time() - t)
     if delta < 60:
-        return u'1·ÖÖÓÇ°'
+        return u'1åˆ†é’Ÿå‰'
     if delta < 3600:
-        return u'%s·ÖÖÓÇ°' % (delta // 60)
+        return u'%såˆ†é’Ÿå‰' % (delta // 60)
     if delta < 86400:
-        return u'%sÐ¡Ê±Ç°' % (delta // 3600)
+        return u'%så°æ—¶å‰' % (delta // 3600)
     if delta < 604800:
-        return u'%sÌìÇ°' % (delta // 86400)
+        return u'%så¤©å‰' % (delta // 86400)
     dt = datetime.fromtimestamp(t)
-    return u'%sÄê%sÔÂ%sÈÕ' % (dt.year, dt.month, dt.day)
+    return u'%så¹´%sæœˆ%sæ—¥' % (dt.year, dt.month, dt.day)
 
-# ³õÊ¼»¯Êý¾Ý¿â:
+# åˆå§‹åŒ–æ•°æ®åº“:
 db.create_engine(**configs.db)
 
-# ´´½¨Ò»¸öWSGIApplication:
+# åˆ›å»ºä¸€ä¸ªWSGIApplication:
 wsgi = WSGIApplication(os.path.dirname(os.path.abspath(__file__)))
 
-# ³õÊ¼»¯jinja2Ä£°åÒýÇæ:
+# åˆå§‹åŒ–jinja2æ¨¡æ¿å¼•æ“Ž:
 template_engine = Jinja2TemplateEngine(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates'))
 template_engine.add_filter('datetime', datetime_filter)
 wsgi.template_engine = template_engine
 
-# ¼ÓÔØ´øÓÐ@get/@postµÄURL´¦Àíº¯Êý:
+# åŠ è½½å¸¦æœ‰@get/@postçš„URLå¤„ç†å‡½æ•°:
 import urls
 wsgi.add_module(urls)
 
-# ÔÚ9000¶Ë¿ÚÉÏÆô¶¯±¾µØ²âÊÔ·þÎñÆ÷:
+# åœ¨9000ç«¯å£ä¸Šå¯åŠ¨æœ¬åœ°æµ‹è¯•æœåŠ¡å™¨:
 if __name__ == '__main__':
     wsgi.run(9000, host='0.0.0.0')
 else:

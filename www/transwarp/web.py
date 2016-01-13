@@ -622,7 +622,7 @@ class StaticFileRoute(object):
         if not os.path.isfile(fpath):
             raise HttpError.notfound()
         fext = os.path.splitext(fpath)[1]
-        ctx.reponse.content_type = mimetypes.types_map.get(fext.lower(), 'application/octet-stream')
+        ctx.response.content_type = mimetypes.types_map.get(fext.lower(), 'application/octet-stream')
         return _static_file_generator(fpath)
 
 def favicon_handler():
