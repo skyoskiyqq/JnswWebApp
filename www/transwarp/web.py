@@ -613,7 +613,7 @@ class StaticFileRoute(object):
         self.route = re.compile('^/static/(.+)$')
         
     def match(self, url):
-        if url.startwith('/static/'):
+        if url.startswith('/static/'):
             return (url[1:], )
         return None
     
