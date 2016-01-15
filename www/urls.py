@@ -6,7 +6,7 @@ __author__ = 'Peter Hu'
 import os, re, time, base64, hashlib, logging
 from transwarp.web import get,post, ctx, view, interceptor, seeother, notfound
 from models import User, Blog, Comment
-from apis import api, APIError, APIValueError, APIPermissionError, APIResourceNotFoundError
+from apis import api, Page, APIError, APIValueError, APIPermissionError, APIResourceNotFoundError
 from config import configs
 
 _COOKIE_NAME = 'awesession'
@@ -41,6 +41,20 @@ def check_admin():
         return
     raise APIPermissionError('No permission.')
 
+def  _get_page_index():
+    page_index = 1
+    try:
+        page_index = int(ctx.request.get('page', '1'))
+    except ValueError:
+        pass
+    return page_index
+
+def _get_blogs_by_page():
+    total = Blog.count_all()
+    page = Page(total, _get_page_index())
+    blogs = Blog.find_by('order by created_at desc limit ?,?', page.offset, page.limit)
+    return blogs, page
+
 @interceptor('/')
 def user_interceptor(next):
     logging.info('try to bind user from session cookie...')
@@ -71,6 +85,21 @@ def index():
 @get('/signin')
 def signin():
     return dict()
+
+@view('register.html')
+@get('/register')
+def register():
+    return dict()
+
+@view('manage_blog_list.html')
+@get('/manage/blogs')
+def manage_blogs():
+    return dict(page_index=_get_page_index(), user=ctx.request.user)
+
+@view('manage_blog_edit.html')
+@get('/manage/blogs/create')
+def manage_blogs_create():
+    return dict(id=None, action='/api/blogs', redirect='/manage/blogs', user=ctx.request.user)
 
 @get('/signout')
 def signout():
@@ -123,15 +152,15 @@ def register_user():
     ctx.response.set_cookie(_COOKIE_NAME, cookie)
     return user
 
-@view('register.html')
-@get('/register')
-def register():
-    return dict()
-
-@view('manage_blog_edit.html')
-@get('/manage/blogs/create')
-def manage_blogs_create():
-    return dict(id=None, action='/api/blogs', redirect='/manage/blogs', user=ctx.request.user)
+@api
+@get('/api/blogs')
+def api_get_blogs():
+    format = ctx.request.get('format', '')
+    blogs, page = _get_blogs_by_page()
+    if format=='html':
+        for blog in blogs:
+            blog.content = markdown2.markdown(blog.content)
+    return dict(blogs=blogs, page=page)
 
 @api
 @post('/api/blogs')
