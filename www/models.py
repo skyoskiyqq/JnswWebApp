@@ -12,6 +12,12 @@ import time, uuid
 from transwarp.db import next_id
 from transwarp.orm import Model, StringField, BooleanField, FloatField, TextField
 
+def next_id(t=None):
+    """
+    生成一个唯一id   由 当前时间 + 随机数（由伪随机数得来）拼接得到
+    """
+    return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex)
+    
 class User(Model):
     __table__ = 'users'
     
